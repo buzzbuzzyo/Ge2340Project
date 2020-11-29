@@ -1,12 +1,3 @@
-/*AI ChatBot by Anuj Upadhyay
-
-Here is a real AI chatbot where you can train the bot yourself! Talk to it and decide wether or not its response is good!
-
-I have already given it some training data to start with.
-
-I hope you like it!
-
-*/
 window.addEventListener('load', function(){
 
 var chat = document.getElementById("chatButton");
@@ -84,7 +75,7 @@ newDiv("orange","I am a bot.");
 var net = new brain.NeuralNetwork();
 var trainSet = [];
 var maxLen = 0;
-var commands = 7;
+var commands = botResponse.length;
 
 //Greeting
 trainSet.push({ input: textToBinary("Hi"), output: {[0]: 1} }); //HI
@@ -134,8 +125,7 @@ chat.addEventListener("click",function(){
 		var result = brain.likely(data, net);
 		console.log(result);
 		setTimeout(function(){
-		newDiv("orange",botResponse[result]);
-		trainingArea.style.display="inline";
+		newDiv("orange",botResponse[result])
 		},800);
 	
 	}
@@ -145,30 +135,36 @@ chat.addEventListener("click",function(){
 yes.addEventListener("click", function(){
 	alert("Good! I hope you enjoy talking to me!");
    	txt.value="";
-   help.style.display = "none";
-	helpBtn.style.display = "none";
 	trainingArea.style.display="none";
 })
 
+// When user click no, ask how can the bot be improved
 no.addEventListener("click", function(){
 	alert("Oh, I am sorry! What would be a good response to your input?");
 divArr[divArr.length-1].style.backgroundColor="#ff6666"
-help.style.display = "inline";
-helpBtn.style.display = "inline";
+trainingArea.style.display = "inline";
 })
 
+
+// When user input expected output, train the ai again
 helpBtn.addEventListener("click", function(){
 	trainingArea.style.display="none";
+	
+	//Add new response
 	botResponse.push(help.value);
+
+	//Add corresponding data 
 	var newInput = textToBinary(txt.value);
-	trainData.push({ input: newInput, output: {[commands]: 1} }); //user training data
+	trainSet.push({ input: newInput, output: {[commands]: 1} }); //user training data
 	commands++;
-	//Training the AI
-	net.train(trainData, {
+	net = new brain.NeuralNetwork();
+	//Training the AI again
+	net.train(trainSet, {
 		log: false,
 		logPeriod: 10,
 		errorThresh: 0.0005,
 	});
+
 	alert("Thank you! I will talk smarter!");
 		txt.value="";
 		help.value="";
@@ -176,6 +172,7 @@ helpBtn.addEventListener("click", function(){
 		helpBtn.style.display = "none";
 })
 
+//Turn text into binary number array for training
 function textToBinary(input){
 	input = input.toUpperCase();
 	var text = [];
@@ -193,8 +190,9 @@ function textToBinary(input){
 	else{
 		text = text.concat(Array(maxLen - text.length).fill(0));
 	}
-	console.log(input)
-	console.log(text)
+	//FOR DEBUG 
+	//console.log(input)
+	//console.log(text)
 	return text;
 }
 });
